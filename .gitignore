@@ -30,6 +30,7 @@ ENV/
 # Project Specific
 output/
 data/
+public/
 *.log
 .DS_Store
 
