@@ -66,16 +66,17 @@ class PuzzleRenderer:
             PIL Font object
         """
         # Try to find system fonts for each script
+        # Note: Nirmala.ttc is a TrueType Collection that supports multiple Indian languages
         system_fonts = {
             'Latin': ['arial.ttf', 'Arial.ttf', 'calibri.ttf', 'segoeui.ttf'],
-            'Devanagari': ['NotoSansDevanagari-Regular.ttf', 'mangal.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf'],
-            'Tamil': ['NotoSansTamil-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf'],
-            'Telugu': ['NotoSansTelugu-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf'],
-            'Bengali': ['NotoSansBengali-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf', 'vrinda.ttf'],
-            'Gujarati': ['NotoSansGujarati-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf', 'shruti.ttf'],
-            'Kannada': ['NotoSansKannada-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf', 'tunga.ttf'],
-            'Malayalam': ['NotoSansMalayalam-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf', 'kartika.ttf'],
-            'Gurmukhi': ['NotoSansGurmukhi-Regular.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf', 'raavi.ttf'],
+            'Devanagari': ['NotoSansDevanagari-Regular.ttf', 'Nirmala.ttc', 'mangal.ttf', 'Nirmala.ttf', 'NirmalaUI.ttf'],
+            'Tamil': ['NotoSansTamil-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf'],
+            'Telugu': ['NotoSansTelugu-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf'],
+            'Bengali': ['NotoSansBengali-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf', 'vrinda.ttf'],
+            'Gujarati': ['NotoSansGujarati-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf', 'shruti.ttf'],
+            'Kannada': ['NotoSansKannada-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf', 'tunga.ttf'],
+            'Malayalam': ['NotoSansMalayalam-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf', 'kartika.ttf'],
+            'Gurmukhi': ['NotoSansGurmukhi-Regular.ttf', 'Nirmala.ttc', 'Nirmala.ttf', 'NirmalaUI.ttf', 'raavi.ttf'],
         }
         
         # Get font list for this script, fallback to Latin

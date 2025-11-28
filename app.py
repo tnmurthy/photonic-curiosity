@@ -238,7 +238,87 @@ def generate_preview():
         return jsonify({'success': False, 'error': str(e)}), 400
 
 
+@app.route('/api/generate-batch-preview', methods=['POST'])
+def generate_batch_preview():
+    """Generate preview puzzles for multiple languages at once."""
+    try:
+        data = request.json
+        difficulty = data.get('difficulty', 'medium')
+        languages = data.get('languages', ['en'])
+        
+        from sudoku_generator import SudokuGenerator
+        from puzzle_renderer import PuzzleRenderer
+        from localization import Localization
+        
+        # Generate one puzzle that will be used for all languages
+        generator = SudokuGenerator()
+        puzzle, solution = generator.create_puzzle(difficulty)
+        
+        loc = Localization()
+        renderer = PuzzleRenderer()
+        
+        results = []
+        
+        for language in languages:
+            try:
+                # Get localized text
+                title = loc.get_text(language, 'ui.daily_sudoku')
+                difficulty_label = loc.get_text(language, f'difficulty.{difficulty}')
+                script = loc.INDIAN_LANGUAGES.get(language, {}).get('script', 'Latin')
+                
+                # Render images
+                puzzle_path = f'output/batch_preview_puzzle_{language}_{difficulty}.png'
+                solution_path = f'output/batch_preview_solution_{language}_{difficulty}.png'
+                
+                renderer.render_puzzle(
+                    puzzle=puzzle,
+                    difficulty=difficulty,
+                    puzzle_number=0,
+                    title=title,
+                    difficulty_label=difficulty_label,
+                    script=script,
+                    output_path=puzzle_path
+                )
+                
+                renderer.render_solution(
+                    solution=solution,
+                    puzzle=puzzle,
+                    difficulty=difficulty,
+                    puzzle_number=0,
+                    title=loc.get_text(language, 'ui.solution'),
+                    script=script,
+                    output_path=solution_path
+                )
+                
+                results.append({
+                    'language': language,
+                    'language_name': loc.INDIAN_LANGUAGES.get(language, {}).get('name', language),
+                    'success': True,
+                    'puzzle_image': f'/output/{os.path.basename(puzzle_path)}',
+                    'solution_image': f'/output/{os.path.basename(solution_path)}',
+                    'caption': loc.format_caption(language, difficulty)
+                })
+            except Exception as e:
+                logger.error(f"Error generating preview for {language}: {e}")
+                results.append({
+                    'language': language,
+                    'success': False,
+                    'error': str(e)
+                })
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'total': len(results),
+            'successful': sum(1 for r in results if r['success'])
+        })
+    except Exception as e:
+        logger.error(f"Error in batch preview generation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+
 @app.route('/output/<path:filename>')
+
 def serve_output(filename):
     """Serve output files."""
     return send_from_directory('output', filename)
