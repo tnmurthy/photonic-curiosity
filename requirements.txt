@@ -1,0 +1,17 @@
+numpy==1.26.4
+Pillow==10.3.0
+APScheduler==3.10.4
+pyyaml==6.0.1
+requests==2.31.0
+python-dotenv==1.0.1
+pycountry==23.12.11
+Flask==3.0.3
+Flask-CORS==4.0.0
+
+# Optional: Social media APIs (uncomment when needed)
+# tweepy==4.14.0
+# praw==7.7.1
+# instagrapi==2.1.2
+
+# Optional: Translation APIs
+# deep-translator==1.11.4

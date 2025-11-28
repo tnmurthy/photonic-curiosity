@@ -1,0 +1,49 @@
+scheduling:
+  times:
+    - "09:00"
+    - "18:00"
+  timezone: "Asia/Kolkata"
+
+localization:
+  default_language: "en"
+  auto_detect: true
+  supported_languages:
+    - en
+    - hi
+    - ta
+    - te
+    - bn
+    - mr
+    - gu
+    - kn
+    - ml
+    - pa
+
+platforms:
+  instagram:
+    enabled: false
+    username: "YOUR_USERNAME"
+    password: "YOUR_PASSWORD"
+  
+  twitter:
+    enabled: false
+    api_key: "YOUR_API_KEY"
+    api_secret: "YOUR_API_SECRET"
+    access_token: "YOUR_ACCESS_TOKEN"
+    access_token_secret: "YOUR_ACCESS_TOKEN_SECRET"
+  
+  facebook:
+    enabled: false
+    page_id: "YOUR_PAGE_ID"
+    access_token: "YOUR_ACCESS_TOKEN"
+  
+  reddit:
+    enabled: false
+    client_id: "YOUR_CLIENT_ID"
+    client_secret: "YOUR_CLIENT_SECRET"
+    username: "YOUR_USERNAME"
+    password: "YOUR_PASSWORD"
+    user_agent: "SudokuBot by u/yourusername"
+    subreddit: "sudoku"
+
+demo_mode: true

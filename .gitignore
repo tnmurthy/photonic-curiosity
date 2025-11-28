@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+
+# Project Specific
+output/
+data/
+*.log
+.DS_Store
+
+# Configuration (contains secrets)
+config.yaml
+# Keep the example config if we had one, but for now we only have the main config
+# It's better to not commit the actual config with potential keys
+# We should create a config.example.yaml instead
+
+# IDE
+.vscode/
+.idea/

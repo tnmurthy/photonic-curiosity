@@ -1,0 +1,49 @@
+{
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "complex": "Complex"
+  },
+  "ui": {
+    "daily_sudoku": "Daily Sudoku",
+    "puzzle_number": "Puzzle #{}",
+    "solution": "Solution",
+    "challenge_yourself": "Challenge Yourself!",
+    "enjoy": "Enjoy!"
+  },
+  "captions": {
+    "template": "🧩 {} Sudoku Challenge!\n\nTest your logic and problem-solving skills with today's puzzle.\n\n💡 Swipe to see the solution!\n\n",
+    "call_to_action": "Can you solve it? Share your time in comments! ⏱️"
+  },
+  "hashtags": {
+    "base": [
+      "Sudoku",
+      "PuzzleOfTheDay",
+      "BrainTeaser",
+      "LogicPuzzle",
+      "MindGames",
+      "PuzzleLovers",
+      "SudokuDaily",
+      "BrainTraining",
+      "PuzzleChallenge",
+      "DailyPuzzle"
+    ],
+    "difficulty": {
+      "easy": [
+        "EasySudoku",
+        "BeginnerPuzzle",
+        "SudokuForBeginners"
+      ],
+      "medium": [
+        "MediumSudoku",
+        "IntermediatePuzzle"
+      ],
+      "hard": [
+        "HardSudoku",
+        "ChallengingPuzzle",
+        "ExpertSudoku"
+      ]
+    }
+  }
+}

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Automation Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            color: #F1F5F9;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #E0E7FF;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #1E293B;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: #334155;
+            color: #F1F5F9;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            color: #FFFFFF;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: #1E293B;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #F1F5F9;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .platform-card {
+            background: #0F172A;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .platform-card:hover {
+            border-color: #3B82F6;
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .platform-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #F1F5F9;
+            text-transform: capitalize;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569;
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #3B82F6;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #94A3B8;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #0F172A;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #F1F5F9;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #64748B;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-enabled {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+
+        .status-disabled {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .status-demo {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FBBF24;
+        }
+
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-image {
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid #334155;
+        }
+
+        .history-item {
+            background: #0F172A;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3B82F6;
+        }
+
+        .history-item .time {
+            color: #64748B;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .history-item .platform {
+            font-weight: 600;
+            color: #3B82F6;
+            text-transform: capitalize;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3B82F6;
+            color: #93C5FD;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10B981;
+            color: #6EE7B7;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #EF4444;
+            color: #FCA5A5;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #475569;
+            border-radius: 50%;
+            border-top-color: #3B82F6;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            background: #0F172A;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #F1F5F9;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3B82F6;
+        }
+
+        .caption-preview {
+            background: #0F172A;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #334155;
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧩 Sudoku Automation Dashboard</h1>
+            <p class="subtitle">Automated Sudoku Puzzle Generator & Social Media Publisher</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="switchTab('config')">⚙️ Configuration</button>
+            <button class="tab" onclick="switchTab('preview')">👁️ Preview & Test</button>
+            <button class="tab" onclick="switchTab('history')">📜 History</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="alert alert-info" id="demoModeAlert" style="display: none;">
+                <span>ℹ️</span>
+                <span>Demo mode is active. Posts will be simulated and saved locally.</span>
+            </div>
+
+            <div class="card">
+                <h2>📈 System Status</h2>
+                <div id="systemStatus">
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Quick Actions</h2>
+                <button class="btn" onclick="showManualPostDialog()">📤 Post Now</button>
+                <button class="btn btn-secondary" onclick="switchTab('preview')">👁️ Generate Preview</button>
+                <button class="btn btn-secondary" onclick="loadHistory()">🔄 Refresh History</button>
+            </div>
+        </div>
+
+        <!-- Configuration Tab -->
+        <div id="config" class="tab-content">
+            <div class="alert alert-info">
+                <span>ℹ️</span>
+                <span>Configure your social media platform credentials below. All sensitive data is encrypted and stored securely.</span>
+            </div>
+
+            <div class="card">
+                <h2>🌐 Social Media Platforms</h2>
+                <div class="platform-grid" id="platformsContainer">
+                    <!-- Platforms will be loaded here -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚙️ General Settings</h2>
+                <div class="form-group">
+                    <label>Demo Mode</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="demoModeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <small style="color: #64748B; display: block; margin-top: 5px;">
+                        When enabled, posts are simulated and saved locally instead of being published to social media.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Default Language</label>
+                    <select id="defaultLanguage">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi - हिंदी</option>
+                        <option value="ta">Tamil - தமிழ்</option>
+                        <option value="te">Telugu - తెలుగు</option>
+                        <option value="bn">Bengali - বাংলা</option>
+                        <option value="mr">Marathi - मराठी</option>
+                        <option value="gu">Gujarati - ગુજરાતી</option>
+                        <option value="kn">Kannada - ಕನ್ನಡ</option>
+                        <option value="ml">Malayalam - മലയാളം</option>
+                        <option value="pa">Punjabi - ਪੰਜਾਬੀ</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-success" onclick="saveConfiguration()">💾 Save Configuration</button>
+            </div>
+        </div>
+
+        <!-- Preview Tab -->
+        <div id="preview" class="tab-content">
+            <div class="card">
+                <h2>👁️ Generate Preview</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label>Difficulty</label>
+                        <select id="previewDifficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Language</label>
+                        <select id="previewLanguage">
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="ta">Tamil</option>
+                            <option value="te">Telugu</option>
+                            <option value="bn">Bengali</option>
+                            <option value="mr">Marathi</option>
+                            <option value="gu">Gujarati</option>
+                            <option value="kn">Kannada</option>
+                            <option value="ml">Malayalam</option>
+                            <option value="pa">Punjabi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="generatePreview()">🎨 Generate Preview</button>
+
+                <div id="previewResult" style="display: none;">
+                    <h3 style="margin: 30px 0 15px; color: #F1F5F9;">Preview Images</h3>
+                    <div class="preview-container">
+                        <div>
+                            <h4 style="color: #94A3B8; margin-bottom: 10px;">Puzzle</h4>
+                            <img id="previewPuzzleImg" class="preview-image" alt="Puzzle Preview">
+                        </div>
+                        <div>
+                            <h4 style="color: #94A3B8; margin-bottom: 10px;">Solution</h4>
+                            <img id="previewSolutionImg" class="preview-image" alt="Solution Preview">
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 30px 0 15px; color: #F1F5F9;">Caption & Hashtags</h3>
+                    <div class="caption-preview" id="captionPreview"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <div class="card">
+                <h2>📜 Posting History</h2>
+                <div id="historyContainer">
+                    <p style="color: #64748B;">Loading history...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConfig = {};
+
+        // Load configuration on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadConfiguration();
+            loadSystemStatus();
+            loadHistory();
+        });
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for specific tabs
+            if (tabName === 'history') {
+                loadHistory();
+            }
+        }
+
+        async function loadConfiguration() {
+            try {
+                const response = await fetch('/api/config');
+                currentConfig = await response.json();
+                
+                renderPlatforms();
+                document.getElementById('demoModeToggle').checked = currentConfig.demo_mode || true;
+                document.getElementById('defaultLanguage').value = currentConfig.localization?.default_language || 'en';
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+            }
+        }
+
+        function renderPlatforms() {
+            const container = document.getElementById('platformsContainer');
+            const platforms = currentConfig.platforms || {};
+            
+            container.innerHTML = '';
+            
+            for (const [name, config] of Object.entries(platforms)) {
+                const card = document.createElement('div');
+                card.className = 'platform-card';
+                card.innerHTML = `
+                    <div class="platform-header">
+                        <span class="platform-name">${name}</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${config.enabled ? 'checked' : ''} 
+                                   onchange="togglePlatform('${name}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="platform-fields" id="fields-${name}">
+                        ${renderPlatformFields(name, config)}
+                    </div>
+                    <button class="btn btn-secondary" style="margin-top: 15px;" 
+                            onclick="testConnection('${name}')">
+                        Test Connection
+                    </button>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function renderPlatformFields(platform, config) {
+            const fields = {
+                instagram: ['username', 'password'],
+                twitter: ['api_key', 'api_secret', 'access_token', 'access_token_secret'],
+                facebook: ['page_id', 'access_token'],
+                reddit: ['client_id', 'client_secret', 'username', 'password', 'subreddit']
+            };
+
+            const platformFields = fields[platform] || [];
+            let html = '';
+
+            for (const field of platformFields) {
+                const isPassword = field.includes('password') || field.includes('secret') || field.includes('token');
+                html += `
+                    <div class="form-group">
+                        <label>${field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</label>
+                        <input type="${isPassword ? 'password' : 'text'}" 
+                               id="${platform}-${field}"
+                               value="${config[field] || ''}"
+                               placeholder="Enter ${field.replace(/_/g, ' ')}">
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
+        async function saveConfiguration() {
+            try {
+                // Collect platform configurations
+                const platforms = {};
+                for (const platform in currentConfig.platforms) {
+                    const fields = document.getElementById(`fields-${platform}`).querySelectorAll('input[type="text"], input[type="password"]');
+                    platforms[platform] = {
+                        enabled: currentConfig.platforms[platform].enabled
+                    };
+                    fields.forEach(field => {
+                        const fieldName = field.id.split('-')[1];
+                        platforms[platform][fieldName] = field.value;
+                    });
+                }
+
+                const newConfig = {
+                    ...currentConfig,
+                    platforms,
+                    demo_mode: document.getElementById('demoModeToggle').checked,
+                    localization: {
+                        ...currentConfig.localization,
+                        default_language: document.getElementById('defaultLanguage').value
+                    }
+                };
+
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newConfig)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Configuration saved successfully!', 'success');
+                    loadConfiguration();
+                } else {
+                    showAlert('Error saving configuration: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error saving configuration: ' + error.message, 'error');
+            }
+        }
+
+        function togglePlatform(platform, enabled) {
+            currentConfig.platforms[platform].enabled = enabled;
+        }
+
+        async function testConnection(platform) {
+            try {
+                const response = await fetch(`/api/test-connection/${platform}`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                } else {
+                    showAlert(result.message || 'Connection failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Error testing connection: ' + error.message, 'error');
+            }
+        }
+
+        async function generatePreview() {
+            try {
+                const difficulty = document.getElementById('previewDifficulty').value;
+                const language = document.getElementById('previewLanguage').value;
+
+                const response = await fetch('/api/generate-preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ difficulty, language })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('previewPuzzleImg').src = result.puzzle_image + '?t=' + Date.now();
+                    document.getElementById('previewSolutionImg').src = result.solution_image + '?t=' + Date.now();
+                    document.getElementById('captionPreview').textContent = result.caption;
+                    document.getElementById('previewResult').style.display = 'block';
+                } else {
+                    showAlert('Error generating preview: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/posting-history');
+                const history = await response.json();
+
+                const container = document.getElementById('historyContainer');
+                if (history.length === 0) {
+                    container.innerHTML = '<p style="color: #64748B;">No posting history yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = history.reverse().map(item => `
+                    <div class="history-item">
+                        <div class="time">${new Date(item.timestamp).toLocaleString()}</div>
+                        <div>
+                            <span class="platform">${item.platform}</span>
+                            ${item.demo_mode ? '<span class="status-badge status-demo">DEMO</span>' : ''}
+                            <span class="status-badge status-success">Posted</span>
+                        </div>
+                        <div style="color: #94A3B8; margin-top: 8px; font-size: 0.9rem;">
+                            ${item.metadata?.difficulty || 'Unknown'} difficulty | 
+                            ${item.metadata?.language || 'en'} language
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        function loadSystemStatus() {
+            fetch('/api/config')
+                .then(r => r.json())
+                .then(config => {
+                    const demoMode = config.demo_mode || true;
+                    const enabledPlatforms = Object.entries(config.platforms || {})
+                        .filter(([_, cfg]) => cfg.enabled)
+                        .map(([name, _]) => name);
+
+                    const statusHtml = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div style="background: #0F172A; padding: 20px; border-radius: 10px;">
+                                <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 5px;">Mode</div>
+                                <div style="font-size: 1.5rem; font-weight: 700;">
+                                    ${demoMode ? '<span class="status-badge status-demo">Demo</span>' : 
+                                                '<span class="status-badge status-enabled">Production</span>'}
+                                </div>
+                            </div>
+                            <div style="background: #0F172A; padding: 20px; border-radius: 10px;">
+                                <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 5px;">Enabled Platforms</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #3B82F6;">${enabledPlatforms.length}</div>
+                            </div>
+                            <div style="background: #0F172A; padding: 20px; border-radius: 10px;">
+                                <div style="color: #64748B; font-size: 0.9rem; margin-bottom: 5px;">Languages</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #10B981;">10</div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('systemStatus').innerHTML = statusHtml;
+
+                    if (demoMode) {
+                        document.getElementById('demoModeAlert').style.display = 'flex';
+                    }
+                });
+        }
+
+        function showManualPostDialog() {
+            const difficulty = prompt('Enter difficulty (easy/medium/hard):', 'medium');
+            const language = prompt('Enter language code (en/hi/ta/te/bn/mr/gu/kn/ml/pa):', 'en');
+            const platform = prompt('Enter platform (instagram/twitter/facebook/reddit):', 'instagram');
+
+            if (difficulty && language && platform) {
+                manualPost(platform, difficulty, language);
+            }
+        }
+
+        async function manualPost(platform, difficulty, language) {
+            try {
+                const response = await fetch('/api/manual-post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ platform, difficulty, language })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(`Post successful! ${result.demo_mode ? '(Demo mode - saved locally)' : ''}`, 'success');
+                    loadHistory();
+                } else {
+                    showAlert('Error posting: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<span>${type === 'success' ? '✓' : '✗'}</span><span>${message}</span>`;
+            
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.tabs'));
+            
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+    </script>
+</body>
+</html>
