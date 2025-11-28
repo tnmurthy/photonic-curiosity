@@ -1,5 +1,8 @@
 # Sudoku Automation System 🧩
 
+[![Daily Sudoku CI/CD](https://github.com/tnmurthy/photonic-curiosity/actions/workflows/deploy.yml/badge.svg)](https://github.com/tnmurthy/photonic-curiosity/actions/workflows/deploy.yml)
+
+
 Automated system to generate 9x9 Sudoku puzzles in three difficulty levels and post them twice daily to social media platforms with trending hashtags in Indian languages.
 
 ## Features
