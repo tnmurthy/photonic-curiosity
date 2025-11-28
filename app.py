@@ -82,6 +82,12 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/batch')
+def batch_preview():
+    """Batch puzzle generation page."""
+    return render_template('batch_preview.html')
+
+
 @app.route('/api/config', methods=['GET'])
 def get_config():
     """Get current configuration."""
