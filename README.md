@@ -73,6 +73,8 @@ Run the automated scheduler for hands-free operation:
 python main.py --mode scheduler
 ```
 
+For a fully automated, hands-free experience, you can also configure the application to run as a GitHub Action. See the [Automated Posting Setup Guide](AUTOMATION_SETUP.md) for more information.
+
 To post immediately:
 
 ```bash
