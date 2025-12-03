@@ -72,20 +72,31 @@ class SocialMediaPoster:
             return {'success': False, 'error': 'Platform not enabled'}
         
         # Route to appropriate platform handler
+        result = {}
         try:
             if platform == 'instagram':
-                return self._post_to_instagram(image_paths, caption, hashtags, platform_config)
+                result = self._post_to_instagram(image_paths, caption, hashtags, platform_config)
             elif platform == 'twitter':
-                return self._post_to_twitter(image_paths, caption, hashtags, platform_config)
+                result = self._post_to_twitter(image_paths, caption, hashtags, platform_config)
             elif platform == 'facebook':
-                return self._post_to_facebook(image_paths, caption, hashtags, platform_config)
+                result = self._post_to_facebook(image_paths, caption, hashtags, platform_config)
             elif platform == 'reddit':
-                return self._post_to_reddit(image_paths, caption, hashtags, platform_config)
+                result = self._post_to_reddit(image_paths, caption, hashtags, platform_config)
             else:
-                return {'success': False, 'error': 'Platform handler not implemented'}
+                result = {'success': False, 'error': 'Platform handler not implemented'}
         except Exception as e:
             logger.error(f"Error posting to {platform}: {e}")
-            return {'success': False, 'error': str(e)}
+            result = {'success': False, 'error': str(e)}
+
+        # Add metadata to result and save to history
+        result.update({
+            'platform': platform,
+            'timestamp': datetime.now().isoformat(),
+            'metadata': metadata or {}
+        })
+        self._add_to_history(result)
+
+        return result
     
     def _simulate_post(
         self,
@@ -127,20 +138,13 @@ class SocialMediaPoster:
         output_file = f"output/scheduled_posts/{post_id}.json"
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(post_data, f, ensure_ascii=False, indent=2)
-        
+
         logger.info(f"[DEMO MODE] Simulated post to {platform}: {output_file}")
         
         # Add to history
         self._add_to_history(post_data)
         
-        return {
-            'success': True,
-            'post_id': post_id,
-            'platform': platform,
-            'timestamp': timestamp,
-            'demo_mode': True,
-            'message': f'Post simulated successfully. Data saved to {output_file}'
-        }
+        return post_data
     
     def _post_to_instagram(
         self,

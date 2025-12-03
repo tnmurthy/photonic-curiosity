@@ -5,6 +5,7 @@ Focus on Indian languages
 
 import json
 import os
+import random
 from typing import Dict, List
 import logging
 
@@ -98,16 +99,21 @@ class Localization:
                     'enjoy': 'Enjoy!'
                 },
                 'captions': {
-                    'template': "🧩 {} Sudoku Challenge!\n\nTest your logic and problem-solving skills with today's puzzle.\n\n💡 Swipe to see the solution!\n\n🎮 Play online & compete on the leaderboard:\n👉 {website_url}\n\n",
-                    'call_to_action': 'Can you solve it? Share your time in comments! ⏱️'
+                    'templates': [
+                        "🧩 Here is your {difficulty} Sudoku for today! How fast can you solve it? ⏱️\n\nSwipe for the solution! 👉\n\nPlay online: {website_url}\n\n",
+                        "🧠 Time for a brain workout! A fresh {difficulty} Sudoku is here. Let us know your solve time in the comments! 👇\n\nPlay online: {website_url}\n\n",
+                        "Calling all puzzle lovers! ✨ Your daily {difficulty} Sudoku has arrived. Can you conquer it?\n\nSwipe to see the answer! 👀\n\nPlay online: {website_url}\n\n",
+                        "Ready, set, solve! 🚀 Here is a {difficulty} Sudoku to test your skills. Share your time below!\n\nPlay online: {website_url}\n\n"
+                    ],
+                    'call_to_action': "Follow us for more daily puzzles and brain teasers! 🤓"
                 },
                 'hashtags': {
                     'base': ['Sudoku', 'PuzzleOfTheDay', 'BrainTeaser', 'LogicPuzzle', 'MindGames', 
-                            'PuzzleLovers', 'SudokuDaily', 'BrainTraining', 'PuzzleChallenge', 'DailyPuzzle'],
+                             'PuzzleLovers', 'SudokuDaily', 'BrainTraining', 'NumberPuzzle', 'DailyChallenge', 'SudokuTime'],
                     'difficulty': {
-                        'easy': ['EasySudoku', 'BeginnerPuzzle', 'SudokuForBeginners'],
-                        'medium': ['MediumSudoku', 'IntermediatePuzzle'],
-                        'hard': ['HardSudoku', 'ChallengingPuzzle', 'ExpertSudoku']
+                        'easy': ['EasySudoku', 'SudokuForBeginners', 'BeginnerPuzzle'],
+                        'medium': ['MediumSudoku', 'SudokuChallenge'],
+                        'hard': ['HardSudoku', 'ExpertSudoku', 'SudokuMaster']
                     }
                 }
             },
@@ -422,23 +428,33 @@ class Localization:
         all_tags = base_tags + diff_tags
         return all_tags[:30]
     
-    def format_caption(self, locale: str, difficulty: str, website_url: str = 'http://localhost:5001') -> str:
+    def format_caption(self, locale: str, difficulty: str, website_url: str) -> str:
         """
         Generate a complete caption for a puzzle post.
         
         Args:
             locale: Language code
             difficulty: Difficulty level
-            website_url: URL of the website where users can play
+            website_url: URL to the website
             
         Returns:
             Formatted caption with hashtags
         """
         difficulty_text = self.get_text(locale, f'difficulty.{difficulty}', difficulty.title())
-        template = self.get_text(locale, 'captions.template', '')
+
+        # Get caption templates and choose one at random
+        templates = self.get_text(locale, 'captions.templates', [])
+        if not templates:
+            # Fallback for older translation files
+            templates = [self.get_text(locale, 'captions.template', "🧩 {difficulty} Sudoku Challenge!")]
+
+        template = random.choice(templates)
+
+        # Get call to action
         cta = self.get_text(locale, 'captions.call_to_action', '')
         
-        caption = template.format(difficulty_text, website_url=website_url) + cta
+        # Format caption
+        caption = template.format(difficulty=difficulty_text, website_url=website_url) + cta
         
         # Add hashtags
         hashtags = self.get_hashtags(locale, difficulty)
