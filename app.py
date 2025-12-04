@@ -88,6 +88,12 @@ def batch_preview():
     return render_template('batch_preview.html')
 
 
+@app.route('/puzzle')
+def puzzle_of_the_day():
+    """Interactive puzzle of the day page."""
+    return render_template('puzzle.html')
+
+
 @app.route('/api/config', methods=['GET'])
 def get_config():
     """Get current configuration."""
@@ -324,10 +330,95 @@ def generate_batch_preview():
 
 
 @app.route('/output/<path:filename>')
-
 def serve_output(filename):
     """Serve output files."""
     return send_from_directory('output', filename)
+
+
+@app.route('/api/puzzle-of-the-day', methods=['GET'])
+def get_puzzle_of_the_day():
+    """Get the current puzzle of the day."""
+    puzzle_file = 'output/puzzle_of_the_day.json'
+
+    if not os.path.exists(puzzle_file):
+        # Optionally, generate one if it's missing
+        return jsonify({'error': 'Puzzle of the day not found'}), 404
+
+    try:
+        with open(puzzle_file, 'r', encoding='utf-8') as f:
+            puzzle_data = json.load(f)
+
+        # Omit solution from the response
+        puzzle_data.pop('solution', None)
+
+        return jsonify(puzzle_data)
+    except Exception as e:
+        logger.error(f"Error loading puzzle of the day: {e}")
+        return jsonify({'error': 'Could not load puzzle of the day'}), 500
+
+
+@app.route('/api/check-solution', methods=['POST'])
+def check_solution():
+    """Check a user's Sudoku solution."""
+    try:
+        data = request.json
+        # The user's solution grid
+        user_solution = data.get('solution')
+
+        # Load the full puzzle data, including the actual solution
+        puzzle_file = 'output/puzzle_of_the_day.json'
+        if not os.path.exists(puzzle_file):
+            return jsonify({'success': False, 'error': 'Puzzle of the day not found'}), 404
+
+        with open(puzzle_file, 'r', encoding='utf-8') as f:
+            full_puzzle_data = json.load(f)
+
+        actual_solution = full_puzzle_data.get('solution')
+
+        if not actual_solution:
+            return jsonify({'success': False, 'error': 'Solution not found for this puzzle'}), 500
+
+        # Compare the user's solution to the actual solution
+        is_correct = (user_solution == actual_solution)
+
+        return jsonify({'success': is_correct})
+    except Exception as e:
+        logger.error(f"Error checking solution: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+
+@app.route('/api/leaderboard', methods=['POST'])
+def update_leaderboard():
+    """Update the leaderboard with a new score."""
+    try:
+        data = request.json
+        name = data.get('name')
+        time = data.get('time')  # Time in seconds
+
+        if not name or not time:
+            return jsonify({'success': False, 'error': 'Name and time are required'}), 400
+
+        puzzle_file = 'output/puzzle_of_the_day.json'
+        if not os.path.exists(puzzle_file):
+            return jsonify({'success': False, 'error': 'Puzzle of the day not found'}), 404
+
+        with open(puzzle_file, 'r', encoding='utf-8') as f:
+            puzzle_data = json.load(f)
+
+        leaderboard = puzzle_data.get('leaderboard', [])
+        leaderboard.append({'name': name, 'time': time})
+
+        # Sort leaderboard by time (lowest first) and keep top 10
+        leaderboard.sort(key=lambda x: x['time'])
+        puzzle_data['leaderboard'] = leaderboard[:10]
+
+        with open(puzzle_file, 'w', encoding='utf-8') as f:
+            json.dump(puzzle_data, f, ensure_ascii=False, indent=2)
+
+        return jsonify({'success': True, 'leaderboard': puzzle_data['leaderboard']})
+    except Exception as e:
+        logger.error(f"Error updating leaderboard: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/manual-post', methods=['POST'])

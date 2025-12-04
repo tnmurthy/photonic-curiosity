@@ -53,5 +53,10 @@ def generate_static_site():
         
     print(f"Generated {output_path} with {difficulty} puzzle.")
 
+    # 5. Copy puzzle.html
+    import shutil
+    shutil.copyfile('templates/puzzle.html', 'public/puzzle.html')
+    print("Copied puzzle.html to public directory.")
+
 if __name__ == '__main__':
     generate_static_site()
