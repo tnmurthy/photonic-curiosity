@@ -3,6 +3,8 @@ Scheduler for automated Sudoku posting
 Handles twice-daily posting schedule
 """
 
+import os
+import json
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import yaml
@@ -45,18 +47,66 @@ class SudokuScheduler:
         )
     
     def _load_config(self):
-        """Load configuration from file."""
+        """Load configuration from file and override with environment variables."""
         try:
             with open(self.config_file, 'r') as f:
-                return yaml.safe_load(f)
+                config = yaml.safe_load(f)
         except FileNotFoundError:
             logger.warning(f"Config file {self.config_file} not found, using defaults")
-            return {
+            config = {
                 'scheduling': {'times': ['09:00', '18:00'], 'timezone': 'Asia/Kolkata'},
                 'localization': {'default_language': 'en'},
-                'platforms': {},
+                'platforms': {
+                    'instagram': {'enabled': False},
+                    'twitter': {'enabled': False},
+                    'facebook': {'enabled': False},
+                    'reddit': {'enabled': False},
+                },
                 'demo_mode': True
             }
+
+        # Override with environment variables if they exist
+        platforms = config.get('platforms', {})
+
+        # Instagram
+        if 'instagram' in platforms and os.getenv('INSTAGRAM_USERNAME'):
+            platforms['instagram']['username'] = os.getenv('INSTAGRAM_USERNAME')
+            platforms['instagram']['password'] = os.getenv('INSTAGRAM_PASSWORD')
+            logger.info("Loaded Instagram credentials from environment variables.")
+
+        # Twitter
+        if 'twitter' in platforms and os.getenv('TWITTER_API_KEY'):
+            platforms['twitter']['api_key'] = os.getenv('TWITTER_API_KEY')
+            platforms['twitter']['api_secret'] = os.getenv('TWITTER_API_SECRET')
+            platforms['twitter']['access_token'] = os.getenv('TWITTER_ACCESS_TOKEN')
+            platforms['twitter']['access_token_secret'] = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+            logger.info("Loaded Twitter credentials from environment variables.")
+
+        # Reddit
+        if 'reddit' in platforms and os.getenv('REDDIT_CLIENT_ID'):
+            platforms['reddit']['client_id'] = os.getenv('REDDIT_CLIENT_ID')
+            platforms['reddit']['client_secret'] = os.getenv('REDDIT_CLIENT_SECRET')
+            platforms['reddit']['username'] = os.getenv('REDDIT_USERNAME')
+            platforms['reddit']['password'] = os.getenv('REDDIT_PASSWORD')
+            logger.info("Loaded Reddit credentials from environment variables.")
+
+        # Facebook
+        if 'facebook' in platforms and os.getenv('FACEBOOK_PAGE_ID'):
+            platforms['facebook']['page_id'] = os.getenv('FACEBOOK_PAGE_ID')
+            platforms['facebook']['access_token'] = os.getenv('FACEBOOK_ACCESS_TOKEN')
+            logger.info("Loaded Facebook credentials from environment variables.")
+
+        config['platforms'] = platforms
+
+        # If any credentials are loaded, assume production mode
+        if any(os.getenv(key) for key in [
+            'INSTAGRAM_USERNAME', 'TWITTER_API_KEY',
+            'REDDIT_CLIENT_ID', 'FACEBOOK_PAGE_ID'
+        ]):
+            config['demo_mode'] = False
+            logger.info("Credentials found, setting demo_mode to False.")
+
+        return config
     
     def setup_schedule(self):
         """Set up the posting schedule based on configuration."""
@@ -80,6 +130,36 @@ class SudokuScheduler:
             )
             
             logger.info(f"Scheduled post at {time_str} ({timezone})")
+
+        # Schedule puzzle of the day generation
+        self.scheduler.add_job(
+            self.generate_puzzle_of_the_day,
+            trigger=CronTrigger(hour=0, minute=5, timezone=timezone),
+            id='puzzle_of_the_day',
+            replace_existing=True
+        )
+        logger.info(f"Scheduled Puzzle of the Day generation at 00:05 ({timezone})")
+
+    def generate_puzzle_of_the_day(self):
+        """Generate and save a 'Puzzle of the Day'."""
+        try:
+            difficulty = 'medium'  # Or choose a different logic
+            puzzle, solution = self.generator.create_puzzle(difficulty)
+
+            puzzle_data = {
+                'date': datetime.now().isoformat(),
+                'difficulty': difficulty,
+                'puzzle': puzzle,
+                'solution': solution,
+                'leaderboard': []
+            }
+
+            with open('output/puzzle_of_the_day.json', 'w', encoding='utf-8') as f:
+                json.dump(puzzle_data, f, ensure_ascii=False, indent=2)
+
+            logger.info("Generated and saved Puzzle of the Day.")
+        except Exception as e:
+            logger.error(f"Error generating Puzzle of the Day: {e}", exc_info=True)
     
     def generate_and_post(self):
         """Generate a puzzle and post to all enabled platforms."""
@@ -136,7 +216,8 @@ class SudokuScheduler:
             )
             
             # Prepare caption and hashtags
-            caption = self.localization.format_caption(default_language, difficulty)
+            website_url = self.config.get('website_url', 'http://localhost:5001')
+            caption = self.localization.format_caption(default_language, difficulty, website_url)
             hashtags = self.localization.get_hashtags(default_language, difficulty)
             
             # Post to all enabled platforms

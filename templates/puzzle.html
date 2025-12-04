@@ -1,769 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku Challenge - Solve & Compete!</title>
+    <title>Puzzle of the Day</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .game-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .difficulty-selector,
-        .language-selector {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e7eb;
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .timer-status {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #667eea;
-        }
-
         .sudoku-grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
-            gap: 0;
-            background: #1f2937;
-            padding: 2px;
-            border-radius: 10px;
+            gap: 1px;
+            width: 450px;
             margin: 20px auto;
-            max-width: 540px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-
         .sudoku-cell {
-            aspect-ratio: 1;
-            background: white;
-            border: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .sudoku-cell:hover:not(.given) {
-            background: #f3f4f6;
-        }
-
-        .sudoku-cell.given {
-            background: #f9fafb;
-            color: #1f2937;
-            cursor: default;
-        }
-
-        .sudoku-cell.error {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .sudoku-cell.selected {
-            background: #ddd6fe;
-            outline: 3px solid #667eea;
-        }
-
-        /* Thick borders for 3x3 boxes */
-        .sudoku-cell:nth-child(3n) {
-            border-right: 3px solid #1f2937;
-        }
-
-        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
-        .sudoku-cell:nth-child(n+46):nth-child(-n+54) {
-            border-bottom: 3px solid #1f2937;
-        }
-
-        .number-pad {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            max-width: 540px;
-            margin: 20px auto;
-        }
-
-        .number-btn {
-            aspect-ratio: 1.5;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .number-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .leaderboard {
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .leaderboard h2 {
-            margin-bottom: 20px;
-            color: #1f2937;
-        }
-
-        .leaderboard-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .leaderboard-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: all 0.2s;
-        }
-
-        .leaderboard-entry:hover {
-            background: #f3f4f6;
-            transform: translateX(5px);
-        }
-
-        .leaderboard-entry.top-3 {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-        }
-
-        .rank {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #667eea;
-            min-width: 40px;
-        }
-
-        .rank.gold {
-            color: #f59e0b;
-        }
-
-        .rank.silver {
-            color: #9ca3af;
-        }
-
-        .rank.bronze {
-            color: #d97706;
-        }
-
-        .player-info {
-            flex: 1;
-            margin: 0 15px;
-        }
-
-        .player-name {
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 3px;
-        }
-
-        .player-details {
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-
-        .score {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #667eea;
-        }
-
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .kpi-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
+            width: 50px;
+            height: 50px;
             text-align: center;
+            font-size: 24px;
+            border: 1px solid #ccc;
         }
-
-        .kpi-value {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-        }
-
-        .kpi-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        .sudoku-cell input {
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 500px;
             text-align: center;
-        }
-
-        .modal-content h2 {
-            color: #1f2937;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin: 20px 0;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1.1rem;
-        }
-
-        .share-link {
-            background: #f3f4f6;
-            padding: 15px;
-            border-radius: 10px;
-            word-break: break-all;
-            margin: 15px 0;
-            font-family: monospace;
+            font-size: 24px;
+            border: none;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🧩 Sudoku Challenge</h1>
-            <p>Solve puzzles, compete globally, climb the leaderboard!</p>
+        <h1 class="text-center mt-5">Puzzle of the Day</h1>
+        <div id="puzzle-info" class="text-center"></div>
+        <div class="sudoku-grid" id="sudoku-grid"></div>
+        <div class="text-center">
+            <button id="check-btn" class="btn btn-primary">Check</button>
+            <button id="reset-btn" class="btn btn-secondary">Reset</button>
         </div>
+        <div id="result" class="text-center mt-3"></div>
+        <div id="leaderboard" class="mt-5">
+            <h2 class="text-center">Leaderboard</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+    </div>
 
-        <div class="main-grid">
-            <!-- Game Area -->
-            <div class="card">
-                <div class="game-controls">
-                    <div class="difficulty-selector">
-                        <button class="btn btn-secondary active" data-difficulty="easy">Easy</button>
-                        <button class="btn btn-secondary" data-difficulty="medium">Medium</button>
-                        <button class="btn btn-secondary" data-difficulty="hard">Hard</button>
-                    </div>
-                    <button class="btn btn-primary" id="newGameBtn">New Game</button>
+    <!-- Modal -->
+    <div class="modal fade" id="leaderboard-modal" tabindex="-1" role="dialog" aria-labelledby="leaderboard-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="leaderboard-modal-label">Congratulations!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-
-                <div class="timer-status">
-                    <div class="stat">
-                        <div class="stat-label">Time</div>
-                        <div class="stat-value" id="timer">00:00</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Hints Used</div>
-                        <div class="stat-value" id="hintsCount">0</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-label">Score</div>
-                        <div class="stat-value" id="scoreDisplay">0</div>
-                    </div>
+                <div class="modal-body">
+                    <p>You solved the puzzle in <span id="solve-time"></span>!</p>
+                    <p>Enter your name to be added to the leaderboard:</p>
+                    <input type="text" id="name-input" class="form-control">
                 </div>
-
-                <div class="sudoku-grid" id="sudokuGrid"></div>
-
-                <div class="number-pad">
-                    <button class="number-btn" data-number="1">1</button>
-                    <button class="number-btn" data-number="2">2</button>
-                    <button class="number-btn" data-number="3">3</button>
-                    <button class="number-btn" data-number="4">4</button>
-                    <button class="number-btn" data-number="5">5</button>
-                    <button class="number-btn" data-number="6">6</button>
-                    <button class="number-btn" data-number="7">7</button>
-                    <button class="number-btn" data-number="8">8</button>
-                    <button class="number-btn" data-number="9">9</button>
-                    <button class="btn btn-secondary" id="hintBtn">💡 Hint</button>
-                    <button class="btn btn-success" id="checkBtn">✓ Check</button>
-                </div>
-            </div>
-
-            <!-- Leaderboard & KPIs -->
-            <div>
-                <div class="card">
-                    <h2>🏆 Leaderboard</h2>
-
-                    <div class="leaderboard-filters">
-                        <button class="btn btn-secondary active" data-filter="all">All Time</button>
-                        <button class="btn btn-secondary" data-filter="today">Today</button>
-                        <button class="btn btn-secondary" data-filter="week">Week</button>
-                    </div>
-
-                    <div class="leaderboard" id="leaderboard">
-                        <p style="text-align: center; color: #6b7280;">Loading...</p>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-top: 20px;">
-                    <h2>📊 Statistics</h2>
-                    <div class="kpi-grid" id="kpiGrid">
-                        <div class="kpi-card">
-                            <div class="kpi-value">0</div>
-                            <div class="kpi-label">Total Solvers</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-value">0</div>
-                            <div class="kpi-label">Puzzles Solved</div>
-                        </div>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="submit-score-btn">Submit</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Completion Modal -->
-    <div class="modal" id="completionModal">
-        <div class="modal-content">
-            <h2>🎉 Puzzle Completed!</h2>
-            <p id="completionMessage"></p>
-
-            <div class="input-group">
-                <input type="text" id="usernameInput" placeholder="Enter your name" value="Player">
-            </div>
-
-            <button class="btn btn-primary" id="submitScoreBtn">Submit Score</button>
-            <button class="btn btn-secondary" id="closeModalBtn">Close</button>
-
-            <div class="share-link" id="shareLink" style="display: none;"></div>
-        </div>
-    </div>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        let currentPuzzle = [];
-        let userSolution = [];
-        let selectedCell = null;
-        let difficulty = 'easy';
-        let startTime = null;
-        let timerInterval = null;
-        let hintsUsed = 0;
-
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            initGame();
-            loadLeaderboard();
-            loadKPIs();
-        });
+            const grid = document.getElementById('sudoku-grid');
+            const puzzleInfo = document.getElementById('puzzle-info');
+            const checkBtn = document.getElementById('check-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const resultDiv = document.getElementById('result');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            const solveTimeSpan = document.getElementById('solve-time');
+            const nameInput = document.getElementById('name-input');
+            const submitScoreBtn = document.getElementById('submit-score-btn');
 
-        // Difficulty Selection
-        document.querySelectorAll('.difficulty-selector .btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.difficulty-selector .btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                difficulty = btn.dataset.difficulty;
-            });
-        });
+            let puzzleData;
+            let timer;
+            let seconds = 0;
 
-        // New Game
-        document.getElementById('newGameBtn').addEventListener('click', initGame);
+            function startTimer() {
+                timer = setInterval(() => {
+                    seconds++;
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    puzzleInfo.textContent = `Difficulty: ${puzzleData.difficulty} | Time: ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+                }, 1000);
+            }
 
-        async function initGame() {
-            try {
-                const response = await fetch('/api/new-puzzle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ difficulty, language: 'en' })
+            function stopTimer() {
+                clearInterval(timer);
+            }
+
+            fetch('/api/puzzle-of-the-day')
+                .then(response => response.json())
+                .then(data => {
+                    puzzleData = data;
+                    renderGrid(data.puzzle);
+                    renderLeaderboard(data.leaderboard);
+                    startTimer();
+                })
+                .catch(error => {
+                    console.error('Error fetching puzzle:', error);
+                    puzzleInfo.textContent = 'Error loading puzzle.';
                 });
 
-                const data = await response.json();
-                if (data.success) {
-                    currentPuzzle = data.puzzle;
-                    userSolution = JSON.parse(JSON.stringify(currentPuzzle));
-                    renderGrid();
-                    startTimer();
-                    hintsUsed = 0;
-                    document.getElementById('hintsCount').textContent = '0';
-                }
-            } catch (error) {
-                console.error('Error starting game:', error);
-            }
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('sudokuGrid');
-            grid.innerHTML = '';
-
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j < 9; j++) {
+            function renderGrid(puzzle) {
+                grid.innerHTML = '';
+                for (let i = 0; i < 81; i++) {
                     const cell = document.createElement('div');
-                    cell.className = 'sudoku-cell';
-                    cell.dataset.row = i;
-                    cell.dataset.col = j;
-
-                    const value = userSolution[i][j];
-                    if (value !== 0) {
-                        cell.textContent = value;
-                    }
-
-                    if (currentPuzzle[i][j] !== 0) {
-                        cell.classList.add('given');
+                    cell.classList.add('sudoku-cell');
+                    const row = Math.floor(i / 9);
+                    const col = i % 9;
+                    if (puzzle[row][col] !== 0) {
+                        cell.textContent = puzzle[row][col];
                     } else {
-                        cell.addEventListener('click', () => selectCell(cell));
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.min = 1;
+                        input.max = 9;
+                        cell.appendChild(input);
                     }
-
                     grid.appendChild(cell);
                 }
             }
-        }
 
-        function selectCell(cell) {
-            document.querySelectorAll('.sudoku-cell').forEach(c => c.classList.remove('selected'));
-            cell.classList.add('selected');
-            selectedCell = cell;
-        }
-
-        // Number Pad
-        document.querySelectorAll('.number-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (selectedCell && !selectedCell.classList.contains('given')) {
-                    const row = parseInt(selectedCell.dataset.row);
-                    const col = parseInt(selectedCell.dataset.col);
-                    const number = parseInt(btn.dataset.number);
-
-                    userSolution[row][col] = number;
-                    selectedCell.textContent = number;
-                    selectedCell.classList.remove('error');
-
-                    updateScore();
+            checkBtn.addEventListener('click', () => {
+                const solution = [];
+                for (let i = 0; i < 81; i++) {
+                    const cell = grid.children[i];
+                    const row = Math.floor(i / 9);
+                    const col = i % 9;
+                    if (cell.children.length > 0) {
+                        const value = cell.children[0].value;
+                        solution.push(value ? parseInt(value) : 0);
+                    } else {
+                        solution.push(parseInt(cell.textContent));
+                    }
                 }
-            });
-        });
 
-        // Hint
-        document.getElementById('hintBtn').addEventListener('click', async () => {
-            if (selectedCell && !selectedCell.classList.contains('given')) {
-                const response = await fetch('/api/validate-solution', {
+                // Reshape the solution into a 9x9 grid
+                const solutionGrid = [];
+                while (solution.length) solutionGrid.push(solution.splice(0, 9));
+
+                // Check the solution
+                fetch('/api/check-solution', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ solution: userSolution })
-                });
-
-                const data = await response.json();
-                if (data.solution) {
-                    const row = parseInt(selectedCell.dataset.row);
-                    const col = parseInt(selectedCell.dataset.col);
-                    const correctValue = data.solution[row][col];
-
-                    userSolution[row][col] = correctValue;
-                    selectedCell.textContent = correctValue;
-                    hintsUsed++;
-                    document.getElementById('hintsCount').textContent = hintsUsed;
-                    updateScore();
-                }
-            }
-        });
-
-        // Check Solution
-        document.getElementById('checkBtn').addEventListener('click', async () => {
-            const response = await fetch('/api/validate-solution', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ solution: userSolution })
-            });
-
-            const data = await response.json();
-            if (data.is_correct) {
-                stopTimer();
-                showCompletionModal();
-            } else {
-                alert('Not quite right! Keep trying!');
-            }
-        });
-
-        function startTimer() {
-            startTime = Date.now();
-            if (timerInterval) clearInterval(timerInterval);
-
-            timerInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                const seconds = (elapsed % 60).toString().padStart(2, '0');
-                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
-            }, 1000);
-        }
-
-        function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-        }
-
-        function updateScore() {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const baseScores = { easy: 100, medium: 200, hard: 300 };
-            const timeBonus = Math.max(0, 100 - (elapsed / 10));
-            const hintPenalty = hintsUsed * 20;
-            const score = Math.max(10, Math.floor(baseScores[difficulty] + timeBonus - hintPenalty));
-            document.getElementById('scoreDisplay').textContent = score;
-        }
-
-        function showCompletionModal() {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const minutes = Math.floor(elapsed / 60);
-            const seconds = elapsed % 60;
-
-            document.getElementById('completionMessage').textContent =
-                `You solved the ${difficulty} puzzle in ${minutes}m ${seconds}s with ${hintsUsed} hints!`;
-            document.getElementById('completionModal').classList.add('active');
-        }
-
-        document.getElementById('submitScoreBtn').addEventListener('click', async () => {
-            const username = document.getElementById('usernameInput').value || 'Anonymous';
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-
-            const response = await fetch('/api/submit-score', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username,
-                    time: elapsed,
-                    hints: hintsUsed
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        puzzle: puzzleData.puzzle,
+                        solution: solutionGrid
+                    })
                 })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        stopTimer();
+                        resultDiv.textContent = 'Congratulations! You solved the puzzle!';
+                        solveTimeSpan.textContent = `${Math.floor(seconds / 60)}:${seconds % 60 < 10 ? '0' : ''}${seconds % 60}`;
+                        $('#leaderboard-modal').modal('show');
+                    } else {
+                        resultDiv.textContent = 'Sorry, that is not the correct solution.';
+                    }
+                });
             });
 
-            const data = await response.json();
-            if (data.success) {
-                const shareText = `I scored ${data.score} points! Join me at ${window.location.href}`;
-                document.getElementById('shareLink').textContent = shareText;
-                document.getElementById('shareLink').style.display = 'block';
-                loadLeaderboard();
-                loadKPIs();
-            }
-        });
-
-        document.getElementById('closeModalBtn').addEventListener('click', () => {
-            document.getElementById('completionModal').classList.remove('active');
-            initGame();
-        });
-
-        // Leaderboard
-        let leaderboardFilter = 'all';
-        document.querySelectorAll('.leaderboard-filters .btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.leaderboard-filters .btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                leaderboardFilter = btn.dataset.filter;
-                loadLeaderboard();
+            resetBtn.addEventListener('click', () => {
+                renderGrid(puzzleData.puzzle);
+                resultDiv.textContent = '';
+                seconds = 0;
+                startTimer();
             });
+
+            submitScoreBtn.addEventListener('click', () => {
+                const name = nameInput.value;
+                if (name) {
+                    fetch('/api/leaderboard', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            time: seconds
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            renderLeaderboard(data.leaderboard);
+                            $('#leaderboard-modal').modal('hide');
+                        }
+                    });
+                }
+            });
+
+            function renderLeaderboard(leaderboard) {
+                leaderboardBody.innerHTML = '';
+                leaderboard.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    const rank = document.createElement('td');
+                    rank.textContent = index + 1;
+                    const name = document.createElement('td');
+                    name.textContent = entry.name;
+                    const time = document.createElement('td');
+                    const minutes = Math.floor(entry.time / 60);
+                    const remainingSeconds = entry.time % 60;
+                    time.textContent = `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+                    row.appendChild(rank);
+                    row.appendChild(name);
+                    row.appendChild(time);
+                    leaderboardBody.appendChild(row);
+                });
+            }
         });
-
-        async function loadLeaderboard() {
-            try {
-                const response = await fetch(`/api/leaderboard?filter=${leaderboardFilter}&difficulty=all`);
-                const data = await response.json();
-
-                const container = document.getElementById('leaderboard');
-                if (data.leaderboard.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: #6b7280;">No entries yet. Be the first!</p>';
-                    return;
-                }
-
-                container.innerHTML = data.leaderboard.slice(0, 10).map((entry, index) => {
-                    const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-                    const entryClass = index < 3 ? 'top-3' : '';
-
-                    return `
-                        <div class="leaderboard-entry ${entryClass}">
-                            <div class="rank ${rankClass}">#${index + 1}</div>
-                            <div class="player-info">
-                                <div class="player-name">${entry.username}</div>
-                                <div class="player-details">
-                                    ${entry.difficulty} • ${Math.floor(entry.time / 60)}m ${entry.time % 60}s ${entry.hints_used > 0 ? `• ${entry.hints_used} hints` : ''}
-                                </div>
-                            </div>
-                            <div class="score">${entry.score}</div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Error loading leaderboard:', error);
-            }
-        }
-
-        async function loadKPIs() {
-            try {
-                const response = await fetch('/api/kpi');
-                const data = await response.json();
-
-                if (data.success) {
-                    const kpiGrid = document.getElementById('kpiGrid');
-                    kpiGrid.innerHTML = `
-                        <div class="kpi-card">
-                            <div class="kpi-value">${data.kpi.total_users}</div>
-                            <div class="kpi-label">Total Solvers</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-value">${data.kpi.total_puzzles_solved}</div>
-                            <div class="kpi-label">Puzzles Solved</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-value">${Math.floor(data.kpi.average_solve_time / 60)}m</div>
-                            <div class="kpi-label">Avg Solve Time</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-value">${data.kpi.recent_submissions_24h}</div>
-                            <div class="kpi-label">Last 24h</div>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error loading KPIs:', error);
-            }
-        }
-
-        // Auto-refresh leaderboard and KPIs
-        setInterval(() => {
-            loadLeaderboard();
-            loadKPIs();
-        }, 30000); // Every 30 seconds
     </script>
 </body>
-
 </html>
