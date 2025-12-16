@@ -39,9 +39,9 @@ def generate_static_site():
     # 3. Inject Data
     # We use simple string replacement to avoid needing Jinja2 in the CI environment if possible,
     # though we likely have it installed.
-    html = template.replace('{{ puzzle_json }}', json.dumps(puzzle))
-    html = html.replace('{{ solution_json }}', json.dumps(solution))
-    html = html.replace('{{ meta_json }}', json.dumps(meta))
+    html = template.replace('{{ puzzle_json | safe }}', json.dumps(puzzle))
+    html = html.replace('{{ solution_json | safe }}', json.dumps(solution))
+    html = html.replace('{{ meta_json | safe }}', json.dumps(meta))
     
     # 4. Output
     output_dir = 'public'

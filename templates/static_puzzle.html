@@ -228,11 +228,16 @@
         </div>
     </div>
 
+    <!-- Data injected by Python script -->
+    <script type="application/json" id="puzzleData">{{ puzzle_json | safe }}</script>
+    <script type="application/json" id="solutionData">{{ solution_json | safe }}</script>
+    <script type="application/json" id="metaData">{{ meta_json | safe }}</script>
+
     <script>
-        // DATA INJECTED BY PYTHON SCRIPT
-        const PUZZLE = {{ puzzle_json }};
-        const SOLUTION = {{ solution_json }};
-        const META = {{ meta_json }};
+        // Load data from JSON script tags
+        const PUZZLE = JSON.parse(document.getElementById('puzzleData').textContent);
+        const SOLUTION = JSON.parse(document.getElementById('solutionData').textContent);
+        const META = JSON.parse(document.getElementById('metaData').textContent);
 
         let userGrid = JSON.parse(JSON.stringify(PUZZLE));
         let selectedCell = null;
