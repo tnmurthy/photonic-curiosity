@@ -4,15 +4,15 @@
 
 ---
 
-## 🌟 What's New in v2.0
+## 🌟 What's New in v2.1 (LATEST)
 
-### 🎨 6 Puzzle Variations
-1. **Classic Sudoku** 🔢 - Traditional numbers
-2. **Emoji Sudoku** 😀 - 8 fun emoji themes
-3. **Color Sudoku** 🌈 - 3 colorful schemes
-4. **Symbol Sudoku** ⚡ - 6 symbol sets
-5. **Picture Sudoku** 🎨 - 4 image categories
-6. **Kids Sudoku** 👶 - Educational themes
+### 🎨 v2.1 Release Features
+1. **More Emoji Themes** 🚀 - Added Space, Weather, and Sports themes.
+2. **Custom Theme Creator** 🛠️ - Users can now input their own 9 symbols to create a unique Sudoku experience.
+3. **Multiplayer Mode (Versus)** ⚔️ - Synchronized puzzle generation for competitive play using Match IDs.
+4. **Daily Challenges** 📅 - A unique, date-seeded puzzle every day for the global community.
+
+### 🎨 6 Puzzle Variations (Original)
 
 ### 🚀 Production Features
 - ✅ Comprehensive error handling
