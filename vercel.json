@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "enhanced_api.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "puzzle_variations.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "enhanced_api.py"
+    },
+    {
+      "src": "/health",
+      "dest": "enhanced_api.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/puzzle_variations.html"
+    }
+  ]
+}
