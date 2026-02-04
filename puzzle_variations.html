@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Variations - Play & Compete!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Variation Selector */
+        .variation-selector {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .variation-selector h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .variation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .variation-btn {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .variation-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .variation-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            font-weight: 700;
+        }
+
+        .variation-btn .icon {
+            display: block;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .theme-selector {
+            display: none;
+        }
+
+        .theme-selector.active {
+            display: block;
+        }
+
+        .theme-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .theme-chip {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .theme-chip:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-chip.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            font-weight: 600;
+        }
+
+        /* Game Controls */
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Stats Display */
+        .timer-status {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* Variation Info Banner */
+        .variation-info {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .variation-info.show {
+            display: block;
+        }
+
+        .variation-info h4 {
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .variation-info p {
+            color: #78350f;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .variation-info .symbols-preview {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            letter-spacing: 5px;
+        }
+
+        /* Sudoku Grid */
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 0;
+            background: #1f2937;
+            padding: 2px;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 540px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .sudoku-cell {
+            aspect-ratio: 1;
+            background: white;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sudoku-cell:hover:not(.given) {
+            background: #f3f4f6;
+        }
+
+        .sudoku-cell.given {
+            background: #f9fafb;
+            color: #1f2937;
+            cursor: default;
+        }
+
+        .sudoku-cell.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .sudoku-cell.selected {
+            background: #ddd6fe;
+            outline: 3px solid #667eea;
+            z-index: 10;
+        }
+
+        /* Thick borders for 3x3 boxes */
+        .sudoku-cell:nth-child(3n) {
+            border-right: 3px solid #1f2937;
+        }
+
+        .sudoku-cell:nth-child(9n) {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
+        .sudoku-cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 3px solid #1f2937;
+        }
+
+        /* Number Pad */
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 540px;
+            margin: 20px auto;
+        }
+
+        .number-btn {
+            aspect-ratio: 1.5;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .number-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .number-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Symbol Pad (for variations) */
+        .symbol-pad {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 540px;
+            margin: 20px auto;
+        }
+
+        .symbol-pad.active {
+            display: grid;
+        }
+
+        .symbol-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .symbol-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .leaderboard-entry:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+
+        .leaderboard-entry.top-3 {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .rank.gold {
+            color: #f59e0b;
+        }
+
+        .rank.silver {
+            color: #9ca3af;
+        }
+
+        .rank.bronze {
+            color: #d97706;
+        }
+
+        .player-info {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .player-name {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 3px;
+        }
+
+        .player-details {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .score {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* Variation Badge */
+        .variation-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e0e7ff;
+            color: #4f46e5;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧩 Sudoku Variations</h1>
+            <p class="tagline">Choose your style, solve, and compete!</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Game Area -->
+            <div class="card">
+                <!-- Variation Selector -->
+                <div class="variation-selector">
+                    <h3>Choose Your Puzzle Style</h3>
+                    <div class="variation-grid">
+                        <div class="variation-btn active" data-variation="classic" onclick="selectVariation('classic')">
+                            <span class="icon">🔢</span>
+                            Classic
+                        </div>
+                        <div class="variation-btn" data-variation="emoji" onclick="selectVariation('emoji')">
+                            <span class="icon">😀</span>
+                            Emoji
+                        </div>
+                        <div class="variation-btn" data-variation="color" onclick="selectVariation('color')">
+                            <span class="icon">🌈</span>
+                            Color
+                        </div>
+                        <div class="variation-btn" data-variation="symbol" onclick="selectVariation('symbol')">
+                            <span class="icon">⚡</span>
+                            Symbol
+                        </div>
+                        <div class="variation-btn" data-variation="picture" onclick="selectVariation('picture')">
+                            <span class="icon">🎨</span>
+                            Picture
+                        </div>
+                        <div class="variation-btn" data-variation="kids" onclick="selectVariation('kids')">
+                            <span class="icon">👶</span>
+                            Kids
+                        </div>
+                    </div>
+
+                    <!-- Theme Selector (shown for non-classic variations) -->
+                    <div class="theme-selector" id="themeSelector">
+                        <h4 style="margin-top: 15px; margin-bottom: 10px;">Theme:</h4>
+                        <div class="theme-chips" id="themeChips"></div>
+                    </div>
+                </div>
+
+                <!-- Variation Info -->
+                <div class="variation-info" id="variationInfo">
+                    <h4 id="variationTitle">Classic Sudoku</h4>
+                    <p id="variationDescription">Traditional number-based Sudoku</p>
+                    <p id="variationAudience">Target: General audience</p>
+                    <div class="symbols-preview" id="symbolsPreview">1 2 3 4 5 6 7 8 9</div>
+                </div>
+
+                <!-- Game Controls -->
+                <div class="game-controls">
+                    <div class="difficulty-selector">
+                        <button class="btn btn-secondary active" data-difficulty="easy">Easy</button>
+                        <button class="btn btn-secondary" data-difficulty="medium">Medium</button>
+                        <button class="btn btn-secondary" data-difficulty="hard">Hard</button>
+                    </div>
+                    <button class="btn btn-primary" id="newGameBtn" onclick="startNewGame()">
+                        🎮 New Game
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="timer-status">
+                    <div class="stat">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timer">00:00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Hints</div>
+                        <div class="stat-value" id="hintsCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Score</div>
+                        <div class="stat-value" id="scoreDisplay">0</div>
+                    </div>
+                </div>
+
+                <!-- Sudoku Grid -->
+                <div class="sudoku-grid" id="sudokuGrid"></div>
+
+                <!-- Number Pad (for classic) -->
+                <div class="number-pad" id="numberPad">
+                    <button class="number-btn" onclick="fillCell(1)">1</button>
+                    <button class="number-btn" onclick="fillCell(2)">2</button>
+                    <button class="number-btn" onclick="fillCell(3)">3</button>
+                    <button class="number-btn" onclick="fillCell(4)">4</button>
+                    <button class="number-btn" onclick="fillCell(5)">5</button>
+                    <button class="number-btn" onclick="fillCell(6)">6</button>
+                    <button class="number-btn" onclick="fillCell(7)">7</button>
+                    <button class="number-btn" onclick="fillCell(8)">8</button>
+                    <button class="number-btn" onclick="fillCell(9)">9</button>
+                    <button class="btn btn-secondary" onclick="getHint()">💡 Hint</button>
+                    <button class="btn btn-primary" onclick="checkSolution()" style="grid-column: span 2;">✓ Check
+                    </button>
+                </div>
+
+                <!-- Symbol Pad (for variations) -->
+                <div class="symbol-pad" id="symbolPad"></div>
+            </div>
+
+            <!-- Leaderboard & Stats -->
+            <div>
+                <div class="card">
+                    <h2>🏆 Leaderboard</h2>
+
+                    <div class="leaderboard-filters">
+                        <button class="filter-btn active" data-filter="all" onclick="filterLeaderboard('all')">All
+                            Time</button>
+                        <button class="filter-btn" data-filter="today" onclick="filterLeaderboard('today')">Today</button>
+                        <button class="filter-btn" data-filter="week" onclick="filterLeaderboard('week')">Week</button>
+                    </div>
+
+                    <div class="leaderboard" id="leaderboard">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Modal -->
+    <div class="modal" id="completionModal">
+        <div class="modal-content">
+            <h2>🎉 Puzzle Completed!</h2>
+            <p id="completionMessage"></p>
+
+            <div class="input-group">
+                <input type="text" id="usernameInput" placeholder="Enter your name" value="Player">
+            </div>
+
+            <button class="btn btn-primary" onclick="submitScore()">Submit Score</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Global state
+        let currentPuzzle = [];
+        let userSolution = [];
+        let selectedCell = null;
+        let currentDifficulty = 'easy';
+        let currentVariation = 'classic';
+        let currentTheme = null;
+        let currentSymbols = [];
+        let startTime = null;
+        let timerInterval = null;
+        let hintsUsed = 0;
+        let availableVariations = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAvailableVariations();
+            setupDifficultySelector();
+            loadLeaderboard();
+        });
+
+        // Load available variations from API
+        async function loadAvailableVariations() {
+            try {
+                const response = await fetch('/api/variations/available');
+                const data = await response.json();
+                if (data.success) {
+                    availableVariations = data.variations;
+                }
+            } catch (error) {
+                console.error('Error loading variations:', error);
+                showToast('Failed to load variations', 'error');
+            }
+        }
+
+        // Select variation type
+        function selectVariation(variation) {
+            currentVariation = variation;
+
+            // Update UI
+            document.querySelectorAll('.variation-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-variation="${variation}"]`).classList.add('active');
+
+            // Show/hide theme selector
+            const themeSelector = document.getElementById('themeSelector');
+            const themeChips = document.getElementById('themeChips');
+
+            if (variation !== 'classic' && availableVariations[variation]?.themes) {
+                themeSelector.classList.add('active');
+                themeChips.innerHTML = '';
+
+                // Add "Random" option
+                const randomChip = document.createElement('div');
+                randomChip.className = 'theme-chip active';
+                randomChip.textContent = '🎲 Random';
+                randomChip.onclick = () => selectTheme(null);
+                themeChips.appendChild(randomChip);
+
+                // Add theme options
+                availableVariations[variation].themes.forEach(theme => {
+                    const chip = document.createElement('div');
+                    chip.className = 'theme-chip';
+                    chip.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+                    chip.onclick = () => selectTheme(theme);
+                    themeChips.appendChild(chip);
+                });
+
+                currentTheme = null; // Reset to random
+            } else {
+                themeSelector.classList.remove('active');
+                currentTheme = null;
+            }
+
+            // Update variation info
+            updateVariationInfo();
+        }
+
+        // Select theme
+        function selectTheme(theme) {
+            currentTheme = theme;
+
+            // Update UI
+            document.querySelectorAll('.theme-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+
+            if (theme === null) {
+                document.querySelector('.theme-chip').classList.add('active');
+            } else {
+                event.target.classList.add('active');
+            }
+        }
+
+        // Update variation info display
+        function updateVariationInfo() {
+            const info = availableVariations[currentVariation];
+            if (!info) return;
+
+            document.getElementById('variationTitle').textContent =
+                currentVariation.charAt(0).toUpperCase() + currentVariation.slice(1) + ' Sudoku';
+            document.getElementById('variationDescription').textContent = info.description;
+            document.getElementById('variationAudience').textContent = `Target: ${info.target_audience}`;
+
+            const variationInfo = document.getElementById('variationInfo');
+            variationInfo.classList.add('show');
+        }
+
+        // Setup difficulty selector
+        function setupDifficultySelector() {
+            document.querySelectorAll('.difficulty-selector .btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.difficulty-selector .btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentDifficulty = btn.dataset.difficulty;
+                });
+            });
+        }
+
+        // Start new game
+        async function startNewGame() {
+            try {
+                showToast('Generating puzzle...', 'success');
+
+                const response = await fetch('/api/new-puzzle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        difficulty: currentDifficulty,
+                        variation_type: currentVariation,
+                        theme: currentTheme,
+                        language: 'en'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentPuzzle = data.puzzle;
+                    userSolution = JSON.parse(JSON.stringify(currentPuzzle));
+                    currentSymbols = data.symbols || ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+                    // Update symbols preview
+                    document.getElementById('symbolsPreview').textContent = currentSymbols.join(' ');
+
+                    renderGrid();
+                    setupInputPad();
+                    startTimer();
+
+                    hintsUsed = 0;
+                    document.getElementById('hintsCount').textContent = '0';
+                    updateScore();
+
+                    showToast('New game started!', 'success');
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error starting game:', error);
+                showToast('Failed to start game', 'error');
+            }
+        }
+
+        // Render grid
+        function renderGrid() {
+            const grid = document.getElementById('sudokuGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+
+                    const value = userSolution[i][j];
+                    if (value !== 0) {
+                        cell.textContent = value;
+                    }
+
+                    if (currentPuzzle[i][j] !== 0) {
+                        cell.classList.add('given');
+                    } else {
+                        cell.addEventListener('click', () => selectCell(cell, i, j));
+                    }
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // Setup input pad (number or symbol)
+        function setupInputPad() {
+            const numberPad = document.getElementById('numberPad');
+            const symbolPad = document.getElementById('symbolPad');
+
+            if (currentVariation === 'classic') {
+                numberPad.style.display = 'grid';
+                symbolPad.classList.remove('active');
+            } else {
+                numberPad.style.display = 'none';
+                symbolPad.classList.add('active');
+
+                // Create symbol buttons
+                symbolPad.innerHTML = '';
+                currentSymbols.forEach(symbol => {
+                    const btn = document.createElement('button');
+                    btn.className = 'symbol-btn';
+                    btn.textContent = symbol;
+                    btn.onclick = () => fillCell(symbol);
+                    symbolPad.appendChild(btn);
+                });
+
+                // Add control buttons
+                const hintBtn = document.createElement('button');
+                hintBtn.className = 'btn btn-secondary';
+                hintBtn.textContent = '💡 Hint';
+                hintBtn.onclick = getHint;
+                symbolPad.appendChild(hintBtn);
+
+                const checkBtn = document.createElement('button');
+                checkBtn.className = 'btn btn-primary';
+                checkBtn.textContent = '✓ Check';
+                checkBtn.style.gridColumn = 'span 2';
+                checkBtn.onclick = checkSolution;
+                symbolPad.appendChild(checkBtn);
+            }
+        }
+
+        // Select cell
+        function selectCell(element, row, col) {
+            document.querySelectorAll('.sudoku-cell').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedCell = { element, row, col };
+        }
+
+        // Fill cell
+        function fillCell(value) {
+            if (selectedCell && !selectedCell.element.classList.contains('given')) {
+                userSolution[selectedCell.row][selectedCell.col] = value;
+                selectedCell.element.textContent = value;
+                selectedCell.element.classList.remove('error');
+                updateScore();
+            }
+        }
+
+        // Get hint
+        async function getHint() {
+            if (!selectedCell) {
+                showToast('Please select a cell first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/get-hint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        row: selectedCell.row,
+                        col: selectedCell.col
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    fillCell(data.hint);
+                    hintsUsed++;
+                    document.getElementById('hintsCount').textContent = hintsUsed;
+                    updateScore();
+                    showToast('Hint applied!', 'success');
+                } else {
+                    showToast('Error getting hint', 'error');
+                }
+            } catch (error) {
+                console.error('Error getting hint:', error);
+                showToast('Failed to get hint', 'error');
+            }
+        }
+
+        // Check solution
+        async function checkSolution() {
+            try {
+                const response = await fetch('/api/validate-solution', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ solution: userSolution })
+                });
+
+                const data = await response.json();
+
+                if (data.is_correct) {
+                    stopTimer();
+                    showCompletionModal();
+                } else {
+                    showToast('Not quite right! Keep trying!', 'error');
+                }
+            } catch (error) {
+                console.error('Error checking solution:', error);
+                showToast('Failed to check solution', 'error');
+            }
+        }
+
+        // Timer functions
+        function startTimer() {
+            startTime = Date.now();
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // Update score
+        function updateScore() {
+            if (!startTime) return;
+
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const baseScores = { easy: 100, medium: 200, hard: 300 };
+            const timeBonus = Math.max(0, 100 - (elapsed / 10));
+            const hintPenalty = hintsUsed * 20;
+            const score = Math.max(10, Math.floor(baseScores[currentDifficulty] + timeBonus - hintPenalty));
+
+            document.getElementById('scoreDisplay').textContent = score;
+        }
+
+        // Show completion modal
+        function showCompletionModal() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+
+            const variationText = currentVariation !== 'classic' ?
+                ` ${currentVariation} ${currentTheme ? `(${currentTheme})` : ''}` : '';
+
+            document.getElementById('completionMessage').textContent =
+                `You solved the ${currentDifficulty}${variationText} puzzle in ${minutes}m ${seconds}s with ${hintsUsed} hints!`;
+            document.getElementById('completionModal').classList.add('active');
+        }
+
+        // Submit score
+        async function submitScore() {
+            const username = document.getElementById('usernameInput').value || 'Anonymous';
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+
+            try {
+                const response = await fetch('/api/submit-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username,
+                        time: elapsed,
+                        hints: hintsUsed
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Score submitted! Rank: #${data.rank}`, 'success');
+                    closeModal();
+                    loadLeaderboard();
+                    setTimeout(startNewGame, 2000);
+                } else {
+                    showToast('Error submitting score', 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting score:', error);
+                showToast('Failed to submit score', 'error');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('completionModal').classList.remove('active');
+        }
+
+        // Load leaderboard
+        let currentFilter = 'all';
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch(`/api/leaderboard?filter=${currentFilter}&limit=10`);
+                const data = await response.json();
+
+                const container = document.getElementById('leaderboard');
+
+                if (data.leaderboard.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;color:#6b7280;">No entries yet. Be the first!</p>';
+                    return;
+                }
+
+                container.innerHTML = data.leaderboard.map((entry, index) => {
+                    const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+                    const entryClass = index < 3 ? 'top-3' : '';
+
+                    const variationBadge = entry.variation_type !== 'classic' ?
+                        `<span class="variation-badge">${entry.variation_type}</span>` : '';
+
+                    return `
+                        <div class="leaderboard-entry ${entryClass}">
+                            <div class="rank ${rankClass}">#${index + 1}</div>
+                            <div class="player-info">
+                                <div class="player-name">${entry.username}${variationBadge}</div>
+                                <div class="player-details">
+                                    ${entry.difficulty} • ${Math.floor(entry.time / 60)}m ${entry.time % 60}s
+                                    ${entry.hints_used > 0 ? `• ${entry.hints_used} hints` : ''}
+                                </div>
+                            </div>
+                            <div class="score">${entry.score}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        // Filter leaderboard
+        function filterLeaderboard(filter) {
+            currentFilter = filter;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            loadLeaderboard();
+        }
+
+        // Auto-refresh leaderboard
+        setInterval(loadLeaderboard, 30000);
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.className = `toast ${type}`;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>
